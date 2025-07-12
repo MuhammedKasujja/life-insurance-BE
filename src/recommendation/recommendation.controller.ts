@@ -20,7 +20,7 @@ export class RecommendationController {
 
   @Post()
   @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
+    description: 'Recommendation has been created successfully.',
     type: RecommendationResponseDto,
   })
   async create(@Body() createRecommendationDto: CreateProfileDto) {
@@ -30,18 +30,18 @@ export class RecommendationController {
     return this.recommendationService.getRecommendation(profile);
   }
 
-  @Get()
-  findAll() {
-    return this.recommendationService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.recommendationService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recommendationService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.recommendationService.findOne(+id);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recommendationService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.recommendationService.remove(+id);
+  // }
 }
