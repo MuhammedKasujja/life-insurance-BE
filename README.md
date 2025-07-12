@@ -1,3 +1,8 @@
+Creating production build
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
