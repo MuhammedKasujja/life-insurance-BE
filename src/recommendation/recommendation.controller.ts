@@ -9,8 +9,8 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { RecommendationService } from './recommendation.service';
-import { CreateRecommendationDto } from './dto/create-recommendation.dto';
-import { UpdateRecommendationDto } from './dto/update-recommendation.dto';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { UpdateRecommendationDto } from './dto/update-profile.dto';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 
@@ -22,9 +22,9 @@ export class RecommendationController {
   @Post()
   @ApiCreatedResponse({
     description: 'The record has been successfully created.',
-    type: CreateRecommendationDto,
+    type: CreateProfileDto,
   })
-  create(@Body() createRecommendationDto: CreateRecommendationDto) {
+  create(@Body() createRecommendationDto: CreateProfileDto) {
     return this.recommendationService.create(createRecommendationDto);
   }
 

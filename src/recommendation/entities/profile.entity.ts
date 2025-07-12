@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Recommendation {
+export class Profile {
   @PrimaryGeneratedColumn()
   id: number;
 

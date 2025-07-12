@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRecommendationDto } from './dto/create-recommendation.dto';
-import { UpdateRecommendationDto } from './dto/update-recommendation.dto';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { UpdateRecommendationDto } from './dto/update-profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Recommendation } from './entities/recommendation.entity';
+import { Profile } from './entities/profile.entity';
 
 @Injectable()
 export class RecommendationService {
   constructor(
-    @InjectRepository(Recommendation)
-    private recommendationRepo: Repository<Recommendation>,
+    @InjectRepository(Profile)
+    private recommendationRepo: Repository<Profile>,
   ) {}
 
   create(
-    createRecommendationDto: CreateRecommendationDto,
-  ): Promise<Recommendation> {
-    const recommendation = new Recommendation();
+    createRecommendationDto: CreateProfileDto,
+  ): Promise<Profile> {
+    const recommendation = new Profile();
     recommendation.age = createRecommendationDto.age;
     recommendation.income = createRecommendationDto.income;
     recommendation.riskTolerance = createRecommendationDto.riskTolerance;
@@ -24,11 +24,11 @@ export class RecommendationService {
     return this.recommendationRepo.save(recommendation);
   }
 
-  findAll(): Promise<Recommendation[]> {
+  findAll(): Promise<Profile[]> {
     return this.recommendationRepo.find();
   }
 
-  findOne(id: number): Promise<Recommendation | null> {
+  findOne(id: number): Promise<Profile | null> {
     return this.recommendationRepo.findOneBy({ id });
   }
 

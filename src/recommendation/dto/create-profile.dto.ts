@@ -2,7 +2,7 @@ import { createZodDto } from '@anatine/zod-nestjs';
 import { extendApi } from '@anatine/zod-openapi';
 import { z } from 'zod';
 
-export const CreateRecommendationSchema = extendApi(
+export const CreateProfileSchema = extendApi(
   z.object({
     age: z.number(),
     income: z.number(),
@@ -15,16 +15,16 @@ export const CreateRecommendationSchema = extendApi(
   },
 );
 
-export class CreateRecommendationDto extends createZodDto(
-  CreateRecommendationSchema,
+export class CreateProfileDto extends createZodDto(
+  CreateProfileSchema,
 ) {}
 
-export const CreateRecommendationResponseZ = z.object({
+export const CreateProfileResponseZ = z.object({
   success: z.boolean(),
   message: z.string(),
   data: z.string(),
 });
 
-export class CreateRecommendationResponseDto extends createZodDto(
-  CreateRecommendationResponseZ,
+export class CreateProfileResponseDto extends createZodDto(
+  CreateProfileResponseZ,
 ) {}
