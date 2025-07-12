@@ -1,45 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateRecommendationDto } from './dto/update-profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Profile } from './entities/profile.entity';
+import { RecommendationResponseDto } from './dto/recommendation.dto';
+import { parseBool } from 'src/config/utils';
+import { RecommendationRule } from './entities/recommendation-rule.entity';
+import { RiskTolerance } from './entities/risk-tolerance.enum';
 
 @Injectable()
 export class RecommendationService {
   constructor(
     @InjectRepository(Profile)
-    private recommendationRepo: Repository<Profile>,
+    private profileRepo: Repository<Profile>,
+    @InjectRepository(RecommendationRule)
+    private readonly ruleRepo: Repository<RecommendationRule>,
   ) {}
 
   create(createProfileDto: CreateProfileDto): Promise<Profile> {
     const profile = new Profile();
     profile.age = createProfileDto.age;
     profile.income = createProfileDto.income;
-    profile.riskTolerance = createProfileDto.riskTolerance;
+    profile.riskTolerance = createProfileDto.riskTolerance as RiskTolerance;
     profile.numOfDependants = createProfileDto.numOfDependants;
 
-    return this.recommendationRepo.save(profile);
+    return this.profileRepo.save(profile);
   }
 
   findAll(): Promise<Profile[]> {
-    return this.recommendationRepo.find();
+    return this.profileRepo.find();
   }
 
   findOne(id: number): Promise<Profile | null> {
-    return this.recommendationRepo.findOneBy({ id });
-  }
-
-  update(id: number, updateRecommendationDto: UpdateRecommendationDto) {
-    return `This action updates a #${id} recommendation`;
+    return this.profileRepo.findOneBy({ id });
   }
 
   async remove(id: number): Promise<void> {
-    await this.recommendationRepo.delete(id);
+    await this.profileRepo.delete(id);
   }
 
-  getRecommendation(profile: Profile): Promise<string> {
-    if (process.env.USE_ML_PREDICTION) {
+  getRecommendation(profile: Profile): Promise<RecommendationResponseDto> {
+    if (parseBool(process.env.USE_ML_PREDICTION)) {
       return this.generateMLBasedRecommendation(profile);
     }
 
@@ -49,24 +50,34 @@ export class RecommendationService {
   // Return recommendations basing on profile data
   private async generateRulesBasedRecommendation(
     profile: Profile,
-  ): Promise<string> {
+  ): Promise<RecommendationResponseDto> {
     const { age, riskTolerance } = profile;
+ 
+    // get from stored business recommendation rules
+    const rule = await this.ruleRepo.findOne({
+      where: {
+        riskTolerance,
+        minAge: LessThanOrEqual(age),
+        maxAge: MoreThanOrEqual(age),
+      },
+    });
 
-    if (riskTolerance === 'high') {
-      return age < 40 ? 'Term Life Insurance' : 'Whole Life Insurance';
+    // fallback rule incase nothing is returned from rules
+    if (!rule) {
+      return {
+        title: 'Basic Term Life Insurance - $250,000 for 10 years',
+        description: 'Simple and cost-effective term coverage.',
+      };
     }
 
-    if (riskTolerance === 'medium') {
-      return age < 50 ? 'Term Life with Riders' : 'Universal Life Insurance';
-    }
-
-    return 'Basic Term Life Insurance';
+    const title = `${rule.product} - ${rule.coverage} for ${rule.term}`;
+    return { title, description: rule.description };
   }
 
-  // TODO: (Muhammed) Return recommendations based on Machine learning data
+  // TODO: (Muhammed) Make recommendations based on Machine learning data
   private async generateMLBasedRecommendation(
     profile: Profile,
-  ): Promise<string> {
-    return 'Prediction using Machine learning';
+  ): Promise<RecommendationResponseDto> {
+    return { title: 'Prediction using Machine learning', description: '' };
   }
 }

@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { RiskTolerance } from './risk-tolerance.enum';
 
 @Entity()
 export class Profile {
@@ -20,13 +21,17 @@ export class Profile {
   @Column()
   numOfDependants: number;
 
-  @Column()
-  riskTolerance: string;
+  @Column({
+    type: 'enum',
+    enum: RiskTolerance,
+    enumName: 'profile_risk_tolerance_enum',
+    default: RiskTolerance.LOW,
+  })
+  riskTolerance: RiskTolerance;
 
   @CreateDateColumn()
   createdAt: Date; // Creation date
 
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
-
 }

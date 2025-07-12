@@ -1,0 +1,1 @@
+export * from './recommendation-rules.seed'

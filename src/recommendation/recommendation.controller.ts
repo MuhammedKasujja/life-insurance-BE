@@ -3,16 +3,15 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UsePipes,
 } from '@nestjs/common';
 import { RecommendationService } from './recommendation.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateRecommendationDto } from './dto/update-profile.dto';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { ApiCreatedResponse } from '@nestjs/swagger';
+import { RecommendationResponseDto } from './dto/recommendation.dto';
 
 @Controller('recommendation')
 @UsePipes(ZodValidationPipe)
@@ -22,10 +21,13 @@ export class RecommendationController {
   @Post()
   @ApiCreatedResponse({
     description: 'The record has been successfully created.',
-    type: CreateProfileDto,
+    type: RecommendationResponseDto,
   })
-  create(@Body() createRecommendationDto: CreateProfileDto) {
-    return this.recommendationService.create(createRecommendationDto);
+  async create(@Body() createRecommendationDto: CreateProfileDto) {
+    const profile = await this.recommendationService.create(
+      createRecommendationDto,
+    );
+    return this.recommendationService.getRecommendation(profile);
   }
 
   @Get()
@@ -36,14 +38,6 @@ export class RecommendationController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.recommendationService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateRecommendationDto: UpdateRecommendationDto,
-  ) {
-    return this.recommendationService.update(+id, updateRecommendationDto);
   }
 
   @Delete(':id')
