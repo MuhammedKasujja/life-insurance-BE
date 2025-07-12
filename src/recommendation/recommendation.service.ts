@@ -12,16 +12,14 @@ export class RecommendationService {
     private recommendationRepo: Repository<Profile>,
   ) {}
 
-  create(
-    createRecommendationDto: CreateProfileDto,
-  ): Promise<Profile> {
-    const recommendation = new Profile();
-    recommendation.age = createRecommendationDto.age;
-    recommendation.income = createRecommendationDto.income;
-    recommendation.riskTolerance = createRecommendationDto.riskTolerance;
-    recommendation.numOfDependants = createRecommendationDto.numOfDependants;
+  create(createProfileDto: CreateProfileDto): Promise<Profile> {
+    const profile = new Profile();
+    profile.age = createProfileDto.age;
+    profile.income = createProfileDto.income;
+    profile.riskTolerance = createProfileDto.riskTolerance;
+    profile.numOfDependants = createProfileDto.numOfDependants;
 
-    return this.recommendationRepo.save(recommendation);
+    return this.recommendationRepo.save(profile);
   }
 
   findAll(): Promise<Profile[]> {
@@ -38,5 +36,37 @@ export class RecommendationService {
 
   async remove(id: number): Promise<void> {
     await this.recommendationRepo.delete(id);
+  }
+
+  getRecommendation(profile: Profile): Promise<string> {
+    if (process.env.USE_ML_PREDICTION) {
+      return this.generateMLBasedRecommendation(profile);
+    }
+
+    return this.generateRulesBasedRecommendation(profile);
+  }
+
+  // Return recommendations basing on profile data
+  private async generateRulesBasedRecommendation(
+    profile: Profile,
+  ): Promise<string> {
+    const { age, riskTolerance } = profile;
+
+    if (riskTolerance === 'high') {
+      return age < 40 ? 'Term Life Insurance' : 'Whole Life Insurance';
+    }
+
+    if (riskTolerance === 'medium') {
+      return age < 50 ? 'Term Life with Riders' : 'Universal Life Insurance';
+    }
+
+    return 'Basic Term Life Insurance';
+  }
+
+  // TODO: (Muhammed) Return recommendations based on Machine learning data
+  private async generateMLBasedRecommendation(
+    profile: Profile,
+  ): Promise<string> {
+    return 'Prediction using Machine learning';
   }
 }
