@@ -21,7 +21,7 @@ export const CreateProfileSchema = extendApi(
     numOfDependants: z.coerce
       .number()
       .max(10, 'Dependants must not exceed 10')
-      .optional(),
+      .default(0),
     riskTolerance: z.enum(riskToleranceValues as [string, ...string[]], {
       required_error: 'Field is required',
       message: 'Field is required',
