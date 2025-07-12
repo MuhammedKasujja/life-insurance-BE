@@ -7,6 +7,7 @@ import { RecommendationResponseDto } from './dto/recommendation.dto';
 import { parseBool } from 'src/config/utils';
 import { RecommendationRule } from './entities/recommendation-rule.entity';
 import { RiskTolerance } from './entities/risk-tolerance.enum';
+import { MLRecommendationService } from './ml.recommendation.service';
 
 @Injectable()
 export class RecommendationService {
@@ -15,6 +16,7 @@ export class RecommendationService {
     private profileRepo: Repository<Profile>,
     @InjectRepository(RecommendationRule)
     private readonly ruleRepo: Repository<RecommendationRule>,
+    private readonly mlService: MLRecommendationService,
   ) {}
 
   create(createProfileDto: CreateProfileDto): Promise<Profile> {
@@ -39,9 +41,21 @@ export class RecommendationService {
     await this.profileRepo.delete(id);
   }
 
-  getRecommendation(profile: Profile): Promise<RecommendationResponseDto> {
+  async getRecommendation(
+    profile: Profile,
+  ): Promise<RecommendationResponseDto> {
     if (parseBool(process.env.USE_ML_PREDICTION)) {
-      return this.generateMLBasedRecommendation(profile);
+      const mlResult = await this.mlService.predict(profile);
+      if (
+        mlResult &&
+        mlResult.confidence >
+          parseInt(process.env.ML_MINIMUM_CONFIDENCE_LEVEL ?? '1')
+      ) {
+        return {
+          title: mlResult.title,
+          description: mlResult.description,
+        };
+      }
     }
 
     return this.generateRulesBasedRecommendation(profile);
@@ -52,7 +66,7 @@ export class RecommendationService {
     profile: Profile,
   ): Promise<RecommendationResponseDto> {
     const { age, riskTolerance } = profile;
- 
+
     // get from stored business recommendation rules
     const rule = await this.ruleRepo.findOne({
       where: {
@@ -72,12 +86,5 @@ export class RecommendationService {
 
     const title = `${rule.product} - ${rule.coverage} for ${rule.term}`;
     return { title, description: rule.description };
-  }
-
-  // TODO: (Muhammed) Make recommendations based on Machine learning data
-  private async generateMLBasedRecommendation(
-    profile: Profile,
-  ): Promise<RecommendationResponseDto> {
-    return { title: 'Prediction using Machine learning', description: '' };
   }
 }

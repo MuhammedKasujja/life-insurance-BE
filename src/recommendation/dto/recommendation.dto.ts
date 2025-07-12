@@ -9,3 +9,9 @@ export const RecommendationResponseZ = z.object({
 export class RecommendationResponseDto extends createZodDto(
   RecommendationResponseZ,
 ) {}
+
+export interface RecommendationMLResult {
+  title: string;
+  description: string;
+  confidence: number; // 0.0 to 1.0 confidence score
+}
