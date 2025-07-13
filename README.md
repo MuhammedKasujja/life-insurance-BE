@@ -77,5 +77,7 @@ docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/insurance-app
 #### 2. Deploy with ECS Task Definition + Fargate
 #### 3. Configure Secrets via AWS Secrets Manager or SSM.
 
+NOTE: change <aws_account_id> and <region> to your AWS details
+
 - Author - [Muhammed Kasujja](https://github.com/MuhammedKasujja)
 - Website - [https://muhammedkasujja.github.io/portfolio/](https://muhammedkasujja.github.io/portfolio/)
